@@ -22,10 +22,24 @@ services:
     volumes:
       - kafka_data:/bitnami/kafka
 
+  redis:
+    image: redis:7.0
+    container_name: redis
+    ports:
+      - "6379:6379"
+    command: ["redis-server"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   app:
     build: .
     depends_on:
       kafka:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     ports:
       - "8080:8080"
@@ -34,6 +48,8 @@ services:
     command: ["java", "-jar", "/app/quarkus-app/quarkus-run.jar"]
     env_file:
       - .env
+    environment:
+      - REDIS_HOSTS=redis://redis:6379
 
 volumes:
   kafka_data:

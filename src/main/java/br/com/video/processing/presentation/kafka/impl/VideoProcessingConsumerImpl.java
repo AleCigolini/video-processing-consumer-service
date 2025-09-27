@@ -12,7 +12,7 @@ import org.eclipse.microprofile.reactive.messaging.Incoming;
 public class VideoProcessingConsumerImpl implements VideoProcessingConsumer {
     private final VideoProcessingController videoProcessingController;
 
-    @Incoming("video-splitted")
+    @Incoming("video-split")
     public void consume(UploadedVideoInfoDto uploadedVideoInfoDto) {
         videoProcessingController.processVideo(uploadedVideoInfoDto);
     }

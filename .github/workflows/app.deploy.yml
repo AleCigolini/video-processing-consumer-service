@@ -41,7 +41,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-            -Dsonar.projectKey=AleCigolini_video-splitter-consumer-service \
+            -Dsonar.projectKey=AleCigolini_video-processing-consumer-service \
             -Dsonar.organization=hackaton-fiap \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.coverage.jacoco.xmlReportPaths=target/app/jacoco/jacoco.xml \
@@ -54,10 +54,10 @@ jobs:
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
       - name: Build Docker image
-        run: docker build -t alecigolini/video-splitter:latest .
+        run: docker build -t alecigolini/video-processing:latest .
 
       - name: Push Docker image
-        run: docker push alecigolini/video-splitter:latest
+        run: docker push alecigolini/video-processing:latest
 
       - name: Azure Login
         uses: azure/login@v2

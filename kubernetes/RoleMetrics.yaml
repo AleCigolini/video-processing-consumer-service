@@ -2,12 +2,12 @@ apiVersion: v1
 automountServiceAccountToken: true
 kind: ServiceAccount
 metadata:
-  name: service-account-video-splitter
+  name: service-account-video-processing
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: hpa-role-video-splitter
+  name: hpa-role-video-processing
   namespace: default
 rules:
   - apiGroups: ["metrics.k8s.io"]
@@ -17,13 +17,13 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: hpa-metrics-access-video-splitter
+  name: hpa-metrics-access-video-processing
   namespace: default
 subjects:
   - kind: ServiceAccount
-    name: service-account-hpa-video-splitter
+    name: service-account-hpa-video-processing
     namespace: default
 roleRef:
   kind: Role
-  name: hpa-role-video-splitter
+  name: hpa-role-video-processing
   apiGroup: rbac.authorization.k8s.io

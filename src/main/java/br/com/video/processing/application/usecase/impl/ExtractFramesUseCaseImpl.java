@@ -36,7 +36,6 @@ public class ExtractFramesUseCaseImpl implements ExtractFramesUseCase {
     public void extractAndSave(VideoChunkInfo videoChunkInfo, InputStream videoStream) {
         Path tempVideo = null;
         try {
-            // Persist input stream to a temp file to allow random access by JCodec
             tempVideo = Files.createTempFile("video-src-" + videoChunkInfo.getId(), ".mp4");
             Files.copy(videoStream, tempVideo, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
 
@@ -45,7 +44,6 @@ public class ExtractFramesUseCaseImpl implements ExtractFramesUseCase {
 
                 AtomicInteger frameIndex = new AtomicInteger(0);
                 int saved = 0;
-                // Ensure step is at least 1 to avoid modulo by zero/negative values
                 final int step = sampleEveryNFrames > 0 ? sampleEveryNFrames : 1;
                 Picture picture;
                 while ((picture = grab.getNativeFrame()) != null) {
@@ -56,7 +54,7 @@ public class ExtractFramesUseCaseImpl implements ExtractFramesUseCase {
 
                     BufferedImage bufferedImage = AWTUtil.toBufferedImage(picture);
 
-                    String fileName = String.format("chunk_%04d_frame_%06d.png", videoChunkInfo.getChunkId(), idx);
+                    String fileName = String.format("part_%04d_frame_%06d.png", videoChunkInfo.getChunkId(), idx);
                     String blobPath = videoChunkInfo.getUserId() + "/" + videoChunkInfo.getId() + "/" + fileName;
 
                     try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
