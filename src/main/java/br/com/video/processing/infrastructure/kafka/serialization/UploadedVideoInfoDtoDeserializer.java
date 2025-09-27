@@ -1,4 +1,4 @@
-package br.com.video.processing.presentation.kafka.serialization;
+package br.com.video.processing.infrastructure.kafka.serialization;
 
 import br.com.video.processing.common.domain.dto.request.UploadedVideoInfoDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,4 +18,3 @@ public class UploadedVideoInfoDtoDeserializer implements Deserializer<UploadedVi
     }
 
 }
-
