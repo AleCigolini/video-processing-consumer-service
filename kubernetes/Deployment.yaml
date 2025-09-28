@@ -82,13 +82,13 @@ spec:
               memory: "1024Mi"
           readinessProbe:
             httpGet:
-              path: /video-processing/q/health/ready
+              path: /video-processing/health/ready
               port: 8080
             initialDelaySeconds: 20
             periodSeconds: 5
           livenessProbe:
             httpGet:
-              path: /video-processing/q/health/live
+              path: /video-processing/health/live
               port: 8080
             initialDelaySeconds: 20
             periodSeconds: 10
