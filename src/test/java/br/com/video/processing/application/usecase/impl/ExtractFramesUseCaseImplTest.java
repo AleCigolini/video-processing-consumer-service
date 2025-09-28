@@ -31,7 +31,7 @@ class ExtractFramesUseCaseImplTest {
         blobStoragePersister = mock(BlobStoragePersister.class);
         useCase = new ExtractFramesUseCaseImpl(blobStoragePersister);
         videoChunkInfo = mock(VideoChunkInfo.class);
-        when(videoChunkInfo.getId()).thenReturn(UUID.randomUUID());
+        when(videoChunkInfo.getVideoId()).thenReturn(42L);
         when(videoChunkInfo.getUserId()).thenReturn(UUID.randomUUID());
         when(videoChunkInfo.getChunkPosition()).thenReturn(1);
         when(videoChunkInfo.getConnectionString()).thenReturn("conn");

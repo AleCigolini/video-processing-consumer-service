@@ -36,11 +36,11 @@ public class AzureFramesZipperService implements FramesZipper {
     public void zipFrames(VideoChunkInfo info) {
         Path tmpZip = null;
         try {
-            tmpZip = Files.createTempFile("frames-" + info.getId(), ".zip");
+            tmpZip = Files.createTempFile("frames-" + info.getVideoId(), ".zip");
             try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(tmpZip))) {
                 BlobServiceClient service = AzureBlobServiceClientFactory.getClient(info.getConnectionString());
                 BlobContainerClient container = service.getBlobContainerClient(info.getContainerName());
-                String prefix = info.getUserId() + "/" + info.getId() + "/";
+                String prefix = info.getUserId() + "/" + info.getVideoId() + "/";
 
                 for (BlobItem item : container.listBlobs(new ListBlobsOptions().setPrefix(prefix), null)) {
                     String name = item.getName();
@@ -57,7 +57,8 @@ public class AzureFramesZipperService implements FramesZipper {
                 }
             }
 
-            String zipBlobPath = info.getUserId() + "/" + info.getId() + "/frames.zip";
+            removeChunks(info);
+            String zipBlobPath = "zip-id-video/" + info.getVideoId() + ".zip";
             try (FileInputStream fis = new FileInputStream(tmpZip.toFile())) {
                 persister.save(
                         info.getConnectionString(),
@@ -74,6 +75,27 @@ public class AzureFramesZipperService implements FramesZipper {
             if (Objects.nonNull(tmpZip)) {
                 try { Files.deleteIfExists(tmpZip); } catch (IOException ignored) {}
             }
+        }
+    }
+
+    private void removeChunks(VideoChunkInfo info) {
+        BlobServiceClient service = AzureBlobServiceClientFactory.getClient(info.getConnectionString());
+        BlobContainerClient container = service.getBlobContainerClient(info.getContainerName());
+        String userVideoPrefix = info.getUserId() + "/" + info.getVideoId() + "/";
+        String onlyVideoPrefix = info.getVideoId() + "/";
+        deleteByPrefix(container, userVideoPrefix);
+        deleteByPrefix(container, onlyVideoPrefix);
+    }
+
+    private void deleteByPrefix(BlobContainerClient container, String prefix) {
+        try {
+            for (BlobItem item : container.listBlobs(new ListBlobsOptions().setPrefix(prefix), null)) {
+                try {
+                    container.getBlobClient(item.getName()).delete();
+                } catch (Exception ignored) {
+                }
+            }
+        } catch (Exception ignored) {
         }
     }
 }

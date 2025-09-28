@@ -8,7 +8,7 @@ class UploadedVideoInfoDtoTest {
     @Test
     void testNoArgsConstructorAndSettersGetters() {
         UploadedVideoInfoDto dto = new UploadedVideoInfoDto();
-        UUID id = UUID.randomUUID();
+        long id = 123L;
         String containerName = "container";
         String connectionString = "connstr";
         String fileName = "file.mp4";
@@ -16,7 +16,7 @@ class UploadedVideoInfoDtoTest {
         Integer totalChunks = 5;
         UUID userId = UUID.randomUUID();
 
-        dto.setId(id);
+        dto.setVideoId(id);
         dto.setContainerName(containerName);
         dto.setConnectionString(connectionString);
         dto.setFileName(fileName);
@@ -24,7 +24,7 @@ class UploadedVideoInfoDtoTest {
         dto.setTotalChunks(totalChunks);
         dto.setUserId(userId);
 
-        assertEquals(id, dto.getId());
+        assertEquals(id, dto.getVideoId());
         assertEquals(containerName, dto.getContainerName());
         assertEquals(connectionString, dto.getConnectionString());
         assertEquals(fileName, dto.getFileName());
@@ -35,7 +35,7 @@ class UploadedVideoInfoDtoTest {
 
     @Test
     void testAllArgsConstructor() {
-        UUID id = UUID.randomUUID();
+        long id = 456L;
         String containerName = "container";
         String connectionString = "connstr";
         String fileName = "file.mp4";
@@ -45,7 +45,7 @@ class UploadedVideoInfoDtoTest {
 
         UploadedVideoInfoDto dto = new UploadedVideoInfoDto(id, containerName, connectionString, fileName, chunkPosition, totalChunks, userId);
 
-        assertEquals(id, dto.getId());
+        assertEquals(id, dto.getVideoId());
         assertEquals(containerName, dto.getContainerName());
         assertEquals(connectionString, dto.getConnectionString());
         assertEquals(fileName, dto.getFileName());
@@ -56,7 +56,7 @@ class UploadedVideoInfoDtoTest {
 
     @Test
     void testEqualsAndHashCode() {
-        UUID id = UUID.randomUUID();
+        long id = 789L;
         UUID userId = UUID.randomUUID();
         UploadedVideoInfoDto dto1 = new UploadedVideoInfoDto(id, "c", "cs", "f", 1, 2, userId);
         UploadedVideoInfoDto dto2 = new UploadedVideoInfoDto(id, "c", "cs", "f", 1, 2, userId);
@@ -66,11 +66,11 @@ class UploadedVideoInfoDtoTest {
 
     @Test
     void testToString() {
-        UUID id = UUID.randomUUID();
+        long id = 321L;
         UUID userId = UUID.randomUUID();
         UploadedVideoInfoDto dto = new UploadedVideoInfoDto(id, "c", "cs", "f", 1, 2, userId);
         String str = dto.toString();
-        assertTrue(str.contains("id"));
+        assertTrue(str.contains("videoId"));
         assertTrue(str.contains("containerName"));
         assertTrue(str.contains("connectionString"));
         assertTrue(str.contains("fileName"));
@@ -79,4 +79,3 @@ class UploadedVideoInfoDtoTest {
         assertTrue(str.contains("userId"));
     }
 }
-

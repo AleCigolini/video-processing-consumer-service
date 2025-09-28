@@ -23,6 +23,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -35,7 +36,7 @@ class AzureFramesZipperServiceTest {
     MockedStatic<AzureBlobServiceClientFactory> factoryMockedStatic;
     VideoChunkInfo info;
     UUID userId;
-    UUID videoId;
+    long videoId;
 
     @BeforeEach
     void setUp() {
@@ -49,11 +50,11 @@ class AzureFramesZipperServiceTest {
         when(blobServiceClient.getBlobContainerClient(any())).thenReturn(containerClient);
         info = mock(VideoChunkInfo.class);
         userId = UUID.randomUUID();
-        videoId = UUID.randomUUID();
+        videoId = 12345L;
         when(info.getConnectionString()).thenReturn("conn");
         when(info.getContainerName()).thenReturn("container");
         when(info.getUserId()).thenReturn(userId);
-        when(info.getId()).thenReturn(videoId);
+        when(info.getVideoId()).thenReturn(videoId);
     }
 
     @AfterEach
@@ -68,27 +69,54 @@ class AzureFramesZipperServiceTest {
         when(pngItem.getName()).thenReturn(prefix + "frame1.png");
         BlobItem nonPngItem = mock(BlobItem.class);
         when(nonPngItem.getName()).thenReturn(prefix + "file.txt");
-        Iterable<BlobItem> iterable = java.util.Arrays.asList(pngItem, nonPngItem);
-        PagedIterable<BlobItem> pagedIterable = mock(PagedIterable.class);
-        when(pagedIterable.iterator()).thenReturn(iterable.iterator());
-        when(containerClient.listBlobs(any(ListBlobsOptions.class), any())).thenReturn(pagedIterable);
+        Iterable<BlobItem> iterableZip = java.util.Arrays.asList(pngItem, nonPngItem);
+        PagedIterable<BlobItem> pagedIterableZip = mock(PagedIterable.class);
+        when(pagedIterableZip.iterator()).thenReturn(iterableZip.iterator());
+
+        BlobItem pngItemToDelete = mock(BlobItem.class);
+        when(pngItemToDelete.getName()).thenReturn(prefix + "frame1.png");
+        Iterable<BlobItem> iterableCleanupUser = java.util.Arrays.asList(pngItemToDelete);
+        PagedIterable<BlobItem> pagedIterableCleanupUser = mock(PagedIterable.class);
+        when(pagedIterableCleanupUser.iterator()).thenReturn(iterableCleanupUser.iterator());
+
+        PagedIterable<BlobItem> pagedIterableCleanupOnly = mock(PagedIterable.class);
+        when(pagedIterableCleanupOnly.iterator()).thenReturn(java.util.Collections.<BlobItem>emptyList().iterator());
+
+        when(containerClient.listBlobs(any(ListBlobsOptions.class), any()))
+                .thenReturn(pagedIterableZip)
+                .thenReturn(pagedIterableCleanupUser)
+                .thenReturn(pagedIterableCleanupOnly);
+
         when(containerClient.getBlobClient(eq(prefix + "frame1.png"))).thenReturn(blobClient);
         BlobInputStream blobInputStream = mock(BlobInputStream.class);
         when(blobInputStream.read(any(byte[].class), anyInt(), anyInt())).thenReturn(-1);
         when(blobClient.openInputStream()).thenReturn(blobInputStream);
+
         doAnswer(invocation -> null).when(persister).save(any(), any(), any(), any(), any(), anyLong());
+
         service.zipFrames(info);
-        verify(persister).save(any(), any(), any(), eq("application/zip"), any(), anyLong());
+
+        verify(persister).save(any(), any(), eq("zip-id-video/" + videoId + ".zip"), eq("application/zip"), any(), anyLong());
+        verify(containerClient, times(3)).listBlobs(any(ListBlobsOptions.class), any());
+        verify(blobClient, times(1)).delete();
     }
 
     @Test
     void testZipFramesNoPngs() {
-        PagedIterable<BlobItem> pagedIterable = mock(PagedIterable.class);
-        when(pagedIterable.iterator()).thenReturn(java.util.Collections.emptyIterator());
-        when(containerClient.listBlobs(any(ListBlobsOptions.class), any())).thenReturn(pagedIterable);
+        PagedIterable<BlobItem> pagedIterableEmpty = mock(PagedIterable.class);
+        when(pagedIterableEmpty.iterator()).thenReturn(java.util.Collections.<BlobItem>emptyList().iterator());
+        when(containerClient.listBlobs(any(ListBlobsOptions.class), any()))
+                .thenReturn(pagedIterableEmpty)
+                .thenReturn(pagedIterableEmpty)
+                .thenReturn(pagedIterableEmpty);
+
         doAnswer(invocation -> null).when(persister).save(any(), any(), any(), any(), any(), anyLong());
+
         service.zipFrames(info);
-        verify(persister).save(any(), any(), any(), eq("application/zip"), any(), anyLong());
+
+        verify(persister).save(any(), any(), eq("zip-id-video/" + videoId + ".zip"), eq("application/zip"), any(), anyLong());
+        verify(containerClient, times(3)).listBlobs(any(ListBlobsOptions.class), any());
+        verify(blobClient, never()).delete();
     }
 
     @Test
@@ -107,10 +135,15 @@ class AzureFramesZipperServiceTest {
         String prefix = userId + "/" + videoId + "/";
         BlobItem pngItem = mock(BlobItem.class);
         when(pngItem.getName()).thenReturn(prefix + "frame1.png");
-        Iterable<BlobItem> iterable = java.util.Arrays.asList(pngItem);
-        PagedIterable<BlobItem> pagedIterable = mock(PagedIterable.class);
-        when(pagedIterable.iterator()).thenReturn(iterable.iterator());
-        when(containerClient.listBlobs(any(ListBlobsOptions.class), any())).thenReturn(pagedIterable);
+        Iterable<BlobItem> iterableZip = java.util.Arrays.asList(pngItem);
+        PagedIterable<BlobItem> pagedIterableZip = mock(PagedIterable.class);
+        when(pagedIterableZip.iterator()).thenReturn(iterableZip.iterator());
+        PagedIterable<BlobItem> pagedIterableEmpty = mock(PagedIterable.class);
+        when(pagedIterableEmpty.iterator()).thenReturn(java.util.Collections.<BlobItem>emptyList().iterator());
+        when(containerClient.listBlobs(any(ListBlobsOptions.class), any()))
+                .thenReturn(pagedIterableZip)
+                .thenReturn(pagedIterableEmpty)
+                .thenReturn(pagedIterableEmpty);
         when(containerClient.getBlobClient(any())).thenReturn(blobClient);
         BlobInputStream blobInputStream = mock(BlobInputStream.class);
         when(blobInputStream.read(any(byte[].class), anyInt(), anyInt())).thenReturn(-1);

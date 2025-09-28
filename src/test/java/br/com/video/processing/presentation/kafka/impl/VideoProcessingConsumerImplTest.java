@@ -16,7 +16,7 @@ class VideoProcessingConsumerImplTest {
         VideoProcessingController controller = mock(VideoProcessingController.class);
         VideoProcessingConsumerImpl consumer = new VideoProcessingConsumerImpl(controller);
         UploadedVideoInfoDto dto = new UploadedVideoInfoDto(
-                UUID.randomUUID(),
+                1L,
                 "container",
                 "UseDevelopmentStorage=true",
                 "file.mp4",
@@ -30,4 +30,3 @@ class VideoProcessingConsumerImplTest {
         assertEquals(dto, captor.getValue());
     }
 }
-

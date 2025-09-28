@@ -3,7 +3,7 @@ package br.com.video.processing.domain;
 import java.util.UUID;
 
 public class VideoChunkInfo {
-    private final UUID id;
+    private final long videoId;
     private final UUID userId;
     private final String containerName;
     private final String connectionString;
@@ -11,8 +11,8 @@ public class VideoChunkInfo {
     private final int chunkPosition;
     private final int totalChunks;
 
-    public VideoChunkInfo(UUID id, UUID userId, String containerName, String connectionString, String fileName, int chunkPosition, int totalChunks) {
-        this.id = id;
+    public VideoChunkInfo(long videoId, UUID userId, String containerName, String connectionString, String fileName, int chunkPosition, int totalChunks) {
+        this.videoId = videoId;
         this.userId = userId;
         this.containerName = containerName;
         this.connectionString = connectionString;
@@ -21,8 +21,8 @@ public class VideoChunkInfo {
         this.totalChunks = totalChunks;
     }
 
-    public UUID getId() {
-        return id;
+    public long getVideoId() {
+        return videoId;
     }
 
     public UUID getUserId() {
