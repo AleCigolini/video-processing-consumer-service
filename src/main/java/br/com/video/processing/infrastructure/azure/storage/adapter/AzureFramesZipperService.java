@@ -31,10 +31,7 @@ public class AzureFramesZipperService implements FramesZipper {
     public AzureFramesZipperService(BlobStoragePersister persister) {
         this.persister = persister;
     }
-
-    /**
-     * Zips all frame blobs under prefix {userId}/{videoId}/ and saves frames.zip in the same prefix.
-     */
+    
     @Override
     public void zipFrames(VideoChunkInfo info) {
         Path tmpZip = null;

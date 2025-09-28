@@ -54,7 +54,7 @@ public class ExtractFramesUseCaseImpl implements ExtractFramesUseCase {
 
                     BufferedImage bufferedImage = AWTUtil.toBufferedImage(picture);
 
-                    String fileName = String.format("part_%04d_frame_%06d.png", videoChunkInfo.getChunkId(), idx);
+                    String fileName = String.format("part_%04d_frame_%06d.png", videoChunkInfo.getChunkPosition(), idx);
                     String blobPath = videoChunkInfo.getUserId() + "/" + videoChunkInfo.getId() + "/" + fileName;
 
                     try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {

@@ -8,16 +8,16 @@ public class VideoChunkInfo {
     private final String containerName;
     private final String connectionString;
     private final String fileName;
-    private final int chunkId;
+    private final int chunkPosition;
     private final int totalChunks;
 
-    public VideoChunkInfo(UUID id, UUID userId, String containerName, String connectionString, String fileName, int chunkId, int totalChunks) {
+    public VideoChunkInfo(UUID id, UUID userId, String containerName, String connectionString, String fileName, int chunkPosition, int totalChunks) {
         this.id = id;
         this.userId = userId;
         this.containerName = containerName;
         this.connectionString = connectionString;
         this.fileName = fileName;
-        this.chunkId = chunkId;
+        this.chunkPosition = chunkPosition;
         this.totalChunks = totalChunks;
     }
 
@@ -41,8 +41,8 @@ public class VideoChunkInfo {
         return fileName;
     }
 
-    public int getChunkId() {
-        return chunkId;
+    public int getChunkPosition() {
+        return chunkPosition;
     }
 
     public int getTotalChunks() {

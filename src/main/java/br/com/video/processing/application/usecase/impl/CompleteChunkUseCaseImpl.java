@@ -21,7 +21,7 @@ public class CompleteChunkUseCaseImpl implements CompleteChunkUseCase {
 
     @Override
     public void onChunkProcessed(VideoChunkInfo info) {
-        long count = progressRepository.addPosition(info.getId(), info.getChunkId());
+        long count = progressRepository.addPosition(info.getId(), info.getChunkPosition());
         int total = info.getTotalChunks();
         if (count >= total && !progressRepository.isZipDone(info.getId())) {
             if (progressRepository.tryAcquireZipLock(info.getId(), 300)) {
