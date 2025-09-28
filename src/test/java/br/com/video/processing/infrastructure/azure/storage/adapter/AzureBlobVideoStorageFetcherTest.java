@@ -11,7 +11,6 @@ import org.mockito.MockedStatic;
 
 import java.io.InputStream;
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -23,7 +22,7 @@ class AzureBlobVideoStorageFetcherTest {
         VideoChunkInfo info = mock(VideoChunkInfo.class);
         when(info.getConnectionString()).thenReturn("cs");
         when(info.getContainerName()).thenReturn("container");
-        when(info.getId()).thenReturn(UUID.randomUUID());
+        when(info.getVideoId()).thenReturn(777L);
         when(info.getFileName()).thenReturn("file.mp4");
 
         BlobServiceClient service = mock(BlobServiceClient.class);
@@ -51,7 +50,7 @@ class AzureBlobVideoStorageFetcherTest {
         VideoChunkInfo info = mock(VideoChunkInfo.class);
         when(info.getConnectionString()).thenReturn("cs");
         when(info.getContainerName()).thenReturn("container");
-        when(info.getId()).thenReturn(UUID.randomUUID());
+        when(info.getVideoId()).thenReturn(888L);
         when(info.getFileName()).thenReturn("file.mp4");
 
         BlobServiceClient service = mock(BlobServiceClient.class);
@@ -76,7 +75,7 @@ class AzureBlobVideoStorageFetcherTest {
         VideoChunkInfo info = mock(VideoChunkInfo.class);
         when(info.getConnectionString()).thenReturn("cs");
         when(info.getContainerName()).thenReturn("container");
-        when(info.getId()).thenReturn(UUID.randomUUID());
+        when(info.getVideoId()).thenReturn(999L);
         when(info.getFileName()).thenReturn("file.mp4");
 
         try (MockedStatic<AzureBlobServiceClientFactory> factory = mockStatic(AzureBlobServiceClientFactory.class)) {

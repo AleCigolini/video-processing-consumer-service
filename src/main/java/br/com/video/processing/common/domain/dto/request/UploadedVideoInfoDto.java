@@ -10,8 +10,7 @@ import java.util.UUID;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Data
 public class UploadedVideoInfoDto {
-    @NotNull
-    private UUID id;
+    private long videoId;
     @NotBlank
     @NotNull
     private String containerName;
@@ -31,8 +30,8 @@ public class UploadedVideoInfoDto {
     public UploadedVideoInfoDto() {
     }
 
-    public UploadedVideoInfoDto(UUID id, String containerName, String connectionString, String fileName, Integer chunkPosition, Integer totalChunks, UUID userId) {
-        this.id = id;
+    public UploadedVideoInfoDto(long videoId, String containerName, String connectionString, String fileName, Integer chunkPosition, Integer totalChunks, UUID userId) {
+        this.videoId = videoId;
         this.containerName = containerName;
         this.connectionString = connectionString;
         this.fileName = fileName;

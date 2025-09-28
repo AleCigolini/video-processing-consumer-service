@@ -36,7 +36,7 @@ public class ExtractFramesUseCaseImpl implements ExtractFramesUseCase {
     public void extractAndSave(VideoChunkInfo videoChunkInfo, InputStream videoStream) {
         Path tempVideo = null;
         try {
-            tempVideo = Files.createTempFile("video-src-" + videoChunkInfo.getId(), ".mp4");
+            tempVideo = Files.createTempFile("video-src-" + videoChunkInfo.getVideoId(), ".mp4");
             Files.copy(videoStream, tempVideo, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
 
             try (SeekableByteChannel channel = NIOUtils.readableChannel(tempVideo.toFile())) {
@@ -55,7 +55,7 @@ public class ExtractFramesUseCaseImpl implements ExtractFramesUseCase {
                     BufferedImage bufferedImage = AWTUtil.toBufferedImage(picture);
 
                     String fileName = String.format("part_%04d_frame_%06d.png", videoChunkInfo.getChunkPosition(), idx);
-                    String blobPath = videoChunkInfo.getUserId() + "/" + videoChunkInfo.getId() + "/" + fileName;
+                    String blobPath = videoChunkInfo.getUserId() + "/" + videoChunkInfo.getVideoId() + "/" + fileName;
 
                     try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
                         ImageIO.write(bufferedImage, "png", baos);

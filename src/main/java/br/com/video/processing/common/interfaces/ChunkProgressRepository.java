@@ -1,15 +1,13 @@
 package br.com.video.processing.common.interfaces;
 
 import java.util.List;
-import java.util.UUID;
 
 public interface ChunkProgressRepository {
-    long addPosition(UUID videoId, int position);
-    long getCount(UUID videoId);
-    List<Integer> getPositions(UUID videoId);
+    long addPosition(long videoId, int position);
+    long getCount(long videoId);
+    List<Integer> getPositions(long videoId);
 
-    boolean isZipDone(UUID videoId);
-    void markZipDone(UUID videoId);
-    boolean tryAcquireZipLock(UUID videoId, long ttlSeconds);
+    boolean isZipDone(long videoId);
+    void markZipDone(long videoId);
+    boolean tryAcquireZipLock(long videoId, long ttlSeconds);
 }
-

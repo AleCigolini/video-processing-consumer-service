@@ -20,59 +20,59 @@ class CompleteChunkUseCaseImplTest {
         framesZipper = mock(FramesZipper.class);
         useCase = new CompleteChunkUseCaseImpl(progressRepository, framesZipper);
         info = mock(VideoChunkInfo.class);
-        when(info.getId()).thenReturn(java.util.UUID.randomUUID());
+        when(info.getVideoId()).thenReturn(123L);
         when(info.getChunkPosition()).thenReturn(1);
         when(info.getTotalChunks()).thenReturn(2);
     }
 
     @Test
     void onChunkProcessed_shouldNotZip_whenCountLessThanTotal() {
-        when(progressRepository.addPosition(any(), anyInt())).thenReturn(1L);
+        when(progressRepository.addPosition(anyLong(), anyInt())).thenReturn(1L);
         useCase.onChunkProcessed(info);
-        verify(progressRepository).addPosition(info.getId(), info.getChunkPosition());
+        verify(progressRepository).addPosition(info.getVideoId(), info.getChunkPosition());
         verify(info).getTotalChunks();
         verifyNoMoreInteractions(progressRepository, framesZipper);
     }
 
     @Test
     void onChunkProcessed_shouldNotZip_whenZipAlreadyDone() {
-        when(progressRepository.addPosition(any(), anyInt())).thenReturn(2L);
-        when(progressRepository.isZipDone(any())).thenReturn(true);
+        when(progressRepository.addPosition(anyLong(), anyInt())).thenReturn(2L);
+        when(progressRepository.isZipDone(anyLong())).thenReturn(true);
         useCase.onChunkProcessed(info);
-        verify(progressRepository).addPosition(info.getId(), info.getChunkPosition());
-        verify(progressRepository).isZipDone(info.getId());
+        verify(progressRepository).addPosition(info.getVideoId(), info.getChunkPosition());
+        verify(progressRepository).isZipDone(info.getVideoId());
         verify(info).getTotalChunks();
         verifyNoMoreInteractions(progressRepository, framesZipper);
     }
 
     @Test
     void onChunkProcessed_shouldNotZip_whenLockNotAcquired() {
-        when(progressRepository.addPosition(any(), anyInt())).thenReturn(2L);
-        when(progressRepository.isZipDone(any())).thenReturn(false);
-        when(progressRepository.tryAcquireZipLock(any(), anyInt())).thenReturn(false);
+        when(progressRepository.addPosition(anyLong(), anyInt())).thenReturn(2L);
+        when(progressRepository.isZipDone(anyLong())).thenReturn(false);
+        when(progressRepository.tryAcquireZipLock(anyLong(), anyLong())).thenReturn(false);
         useCase.onChunkProcessed(info);
-        verify(progressRepository).addPosition(info.getId(), info.getChunkPosition());
-        verify(progressRepository).isZipDone(info.getId());
-        verify(progressRepository).tryAcquireZipLock(info.getId(), 300);
+        verify(progressRepository).addPosition(info.getVideoId(), info.getChunkPosition());
+        verify(progressRepository).isZipDone(info.getVideoId());
+        verify(progressRepository).tryAcquireZipLock(info.getVideoId(), 300);
         verify(info).getTotalChunks();
         verifyNoMoreInteractions(progressRepository, framesZipper);
     }
 
     @Test
     void onChunkProcessed_shouldZipAndMarkDone_whenAllConditionsMet() {
-        java.util.UUID uuid = java.util.UUID.randomUUID();
-        when(info.getId()).thenReturn(uuid);
+        long id = 999L;
+        when(info.getVideoId()).thenReturn(id);
         when(info.getChunkPosition()).thenReturn(2);
         when(info.getTotalChunks()).thenReturn(2);
-        when(progressRepository.addPosition(uuid, 2)).thenReturn(2L);
-        when(progressRepository.isZipDone(uuid)).thenReturn(false);
-        when(progressRepository.tryAcquireZipLock(uuid, 300)).thenReturn(true);
+        when(progressRepository.addPosition(id, 2)).thenReturn(2L);
+        when(progressRepository.isZipDone(id)).thenReturn(false);
+        when(progressRepository.tryAcquireZipLock(id, 300)).thenReturn(true);
         useCase.onChunkProcessed(info);
-        verify(progressRepository).addPosition(uuid, 2);
-        verify(progressRepository).isZipDone(uuid);
-        verify(progressRepository).tryAcquireZipLock(uuid, 300);
+        verify(progressRepository).addPosition(id, 2);
+        verify(progressRepository).isZipDone(id);
+        verify(progressRepository).tryAcquireZipLock(id, 300);
         verify(framesZipper).zipFrames(info);
-        verify(progressRepository).markZipDone(uuid);
+        verify(progressRepository).markZipDone(id);
         verify(info, atLeastOnce()).getTotalChunks();
         verifyNoMoreInteractions(progressRepository, framesZipper);
     }

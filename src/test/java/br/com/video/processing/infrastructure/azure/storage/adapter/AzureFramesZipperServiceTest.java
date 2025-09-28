@@ -35,7 +35,7 @@ class AzureFramesZipperServiceTest {
     MockedStatic<AzureBlobServiceClientFactory> factoryMockedStatic;
     VideoChunkInfo info;
     UUID userId;
-    UUID videoId;
+    long videoId;
 
     @BeforeEach
     void setUp() {
@@ -49,11 +49,11 @@ class AzureFramesZipperServiceTest {
         when(blobServiceClient.getBlobContainerClient(any())).thenReturn(containerClient);
         info = mock(VideoChunkInfo.class);
         userId = UUID.randomUUID();
-        videoId = UUID.randomUUID();
+        videoId = 12345L;
         when(info.getConnectionString()).thenReturn("conn");
         when(info.getContainerName()).thenReturn("container");
         when(info.getUserId()).thenReturn(userId);
-        when(info.getId()).thenReturn(videoId);
+        when(info.getVideoId()).thenReturn(videoId);
     }
 
     @AfterEach

@@ -20,10 +20,10 @@ class RequestVideoInfoMapperImplTest {
 
     @Test
     void requestDtoToDomain_shouldMapAllFields() {
-        UUID id = UUID.randomUUID();
+        long id = 1001L;
         UUID userId = UUID.randomUUID();
         UploadedVideoInfoDto dto = new UploadedVideoInfoDto();
-        dto.setId(id);
+        dto.setVideoId(id);
         dto.setUserId(userId);
         dto.setContainerName("container");
         dto.setConnectionString("connstr");
@@ -32,7 +32,7 @@ class RequestVideoInfoMapperImplTest {
         dto.setTotalChunks(10);
 
         VideoChunkInfo info = mapper.requestDtoToDomain(dto);
-        assertEquals(id, info.getId());
+        assertEquals(id, info.getVideoId());
         assertEquals(userId, info.getUserId());
         assertEquals("container", info.getContainerName());
         assertEquals("connstr", info.getConnectionString());
@@ -43,10 +43,10 @@ class RequestVideoInfoMapperImplTest {
 
     @Test
     void requestDtoToDomain_shouldDefaultNullChunkFieldsToZero() {
-        UUID id = UUID.randomUUID();
+        long id = 1002L;
         UUID userId = UUID.randomUUID();
         UploadedVideoInfoDto dto = new UploadedVideoInfoDto();
-        dto.setId(id);
+        dto.setVideoId(id);
         dto.setUserId(userId);
         dto.setContainerName("cont");
         dto.setConnectionString("cs");

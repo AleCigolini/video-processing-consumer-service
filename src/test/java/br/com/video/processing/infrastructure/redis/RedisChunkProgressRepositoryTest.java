@@ -10,7 +10,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -24,7 +23,7 @@ class RedisChunkProgressRepositoryTest {
     ValueCommands<String, String> value;
     KeyCommands<String> keys;
     ChunkProgressRepository repo;
-    UUID videoId;
+    long videoId;
 
     @BeforeEach
     void init() {
@@ -38,7 +37,7 @@ class RedisChunkProgressRepositoryTest {
         when(ds.value(String.class)).thenReturn(value);
         when(ds.key()).thenReturn(keys);
         repo = new RedisChunkProgressRepository(ds);
-        videoId = UUID.randomUUID();
+        videoId = 555L;
     }
 
     @Test
