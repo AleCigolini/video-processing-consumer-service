@@ -43,11 +43,6 @@ spec:
                 secretKeyRef:
                   name: video-processing-secret
                   key: KAFKA_SASL_JAAS_CONFIG
-            - name: VIDEO_UPLOADED_TOPIC
-              valueFrom:
-                secretKeyRef:
-                  name: video-processing-secret
-                  key: VIDEO_UPLOADED_TOPIC
             - name: VIDEO_SPLITTED_TOPIC
               valueFrom:
                 secretKeyRef:
