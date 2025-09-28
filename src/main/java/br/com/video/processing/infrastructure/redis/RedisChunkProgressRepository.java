@@ -8,6 +8,7 @@ import io.quarkus.redis.datasource.set.SetCommands;
 import io.quarkus.redis.datasource.value.ValueCommands;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,6 +20,9 @@ public class RedisChunkProgressRepository implements ChunkProgressRepository {
     private final SetCommands<String, String> set;
     private final ValueCommands<String, String> value;
     private final KeyCommands<String> keys;
+
+    @ConfigProperty(name = "redis.chunk.ttl-seconds")
+    long ttlSeconds = 600;
 
     @Inject
     public RedisChunkProgressRepository(RedisDataSource ds) {
@@ -37,10 +41,13 @@ public class RedisChunkProgressRepository implements ChunkProgressRepository {
     public long addPosition(long videoId, int position) {
         String pos = Integer.toString(position);
         String setKey = positionsSetKey(videoId);
+        String listKey = positionsListKey(videoId);
         long added = set.sadd(setKey, pos);
         if (added == 1) {
-            list.rpush(positionsListKey(videoId), pos);
+            list.rpush(listKey, pos);
         }
+        keys.expire(setKey, ttlSeconds);
+        keys.expire(listKey, ttlSeconds);
         return set.scard(setKey);
     }
 
@@ -64,7 +71,9 @@ public class RedisChunkProgressRepository implements ChunkProgressRepository {
 
     @Override
     public void markZipDone(long videoId) {
-        value.set(zipDoneKey(videoId), "1");
+        String key = zipDoneKey(videoId);
+        value.set(key, "1");
+        keys.expire(key, ttlSeconds);
     }
 
     @Override
