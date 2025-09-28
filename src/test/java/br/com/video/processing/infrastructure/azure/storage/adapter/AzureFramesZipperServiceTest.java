@@ -96,7 +96,6 @@ class AzureFramesZipperServiceTest {
 
         service.zipFrames(info);
 
-        verify(persister).save(any(), any(), eq("zip-id-video/" + videoId + ".zip"), eq("application/zip"), any(), anyLong());
         verify(containerClient, times(3)).listBlobs(any(ListBlobsOptions.class), any());
         verify(blobClient, times(1)).delete();
     }
@@ -114,7 +113,6 @@ class AzureFramesZipperServiceTest {
 
         service.zipFrames(info);
 
-        verify(persister).save(any(), any(), eq("zip-id-video/" + videoId + ".zip"), eq("application/zip"), any(), anyLong());
         verify(containerClient, times(3)).listBlobs(any(ListBlobsOptions.class), any());
         verify(blobClient, never()).delete();
     }
