@@ -4,6 +4,7 @@ import br.com.video.processing.application.mapper.RequestVideoInfoMapper;
 import br.com.video.processing.application.usecase.ExtractFramesUseCase;
 import br.com.video.processing.application.usecase.GetVideoUseCase;
 import br.com.video.processing.application.usecase.CompleteChunkUseCase;
+import br.com.video.processing.application.usecase.PublishVideoStatusUseCase;
 import br.com.video.processing.common.domain.dto.request.UploadedVideoInfoDto;
 import br.com.video.processing.domain.VideoChunkInfo;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,6 +14,7 @@ import org.mockito.Mockito;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -22,6 +24,7 @@ class VideoProcessingControllerImplTest {
     private GetVideoUseCase getVideoUseCase;
     private ExtractFramesUseCase extractFramesUseCase;
     private CompleteChunkUseCase completeChunkUseCase;
+    private PublishVideoStatusUseCase publishVideoStatusUseCase;
     private VideoProcessingControllerImpl controller;
 
     @BeforeEach
@@ -30,11 +33,13 @@ class VideoProcessingControllerImplTest {
         getVideoUseCase = mock(GetVideoUseCase.class);
         extractFramesUseCase = mock(ExtractFramesUseCase.class);
         completeChunkUseCase = mock(CompleteChunkUseCase.class);
+        publishVideoStatusUseCase = mock(PublishVideoStatusUseCase.class);
         controller = new VideoProcessingControllerImpl(
                 requestVideoInfoMapper,
                 getVideoUseCase,
                 extractFramesUseCase,
-                completeChunkUseCase
+                completeChunkUseCase,
+                publishVideoStatusUseCase
         );
     }
 
@@ -43,31 +48,42 @@ class VideoProcessingControllerImplTest {
         UploadedVideoInfoDto dto = mock(UploadedVideoInfoDto.class);
         VideoChunkInfo chunkInfo = mock(VideoChunkInfo.class);
         InputStream videoStream = new ByteArrayInputStream(new byte[]{1,2,3});
+        UUID userId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+        long videoId = 123L;
 
         when(requestVideoInfoMapper.requestDtoToDomain(dto)).thenReturn(chunkInfo);
         when(getVideoUseCase.getVideo(chunkInfo)).thenReturn(videoStream);
+        when(chunkInfo.getUserId()).thenReturn(userId);
+        when(chunkInfo.getVideoId()).thenReturn(videoId);
 
         controller.processVideo(dto);
 
-        InOrder inOrder = Mockito.inOrder(requestVideoInfoMapper, getVideoUseCase, extractFramesUseCase, completeChunkUseCase);
+        InOrder inOrder = Mockito.inOrder(requestVideoInfoMapper, getVideoUseCase, extractFramesUseCase, completeChunkUseCase, publishVideoStatusUseCase);
         inOrder.verify(requestVideoInfoMapper).requestDtoToDomain(dto);
         inOrder.verify(getVideoUseCase).getVideo(chunkInfo);
         inOrder.verify(extractFramesUseCase).extractAndSave(chunkInfo, videoStream);
         inOrder.verify(completeChunkUseCase).onChunkProcessed(chunkInfo);
-        verifyNoMoreInteractions(requestVideoInfoMapper, getVideoUseCase, extractFramesUseCase, completeChunkUseCase);
+        inOrder.verify(publishVideoStatusUseCase).publishStatus(userId, videoId, "SUCCESS");
+        verifyNoMoreInteractions(requestVideoInfoMapper, getVideoUseCase, extractFramesUseCase, completeChunkUseCase, publishVideoStatusUseCase);
     }
 
     @Test
     void processVideo_shouldThrowRuntimeException_whenExceptionOccurs() {
         UploadedVideoInfoDto dto = mock(UploadedVideoInfoDto.class);
         VideoChunkInfo chunkInfo = mock(VideoChunkInfo.class);
+        UUID userId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+        long videoId = 123L;
         when(requestVideoInfoMapper.requestDtoToDomain(dto)).thenReturn(chunkInfo);
         when(getVideoUseCase.getVideo(chunkInfo)).thenThrow(new RuntimeException("erro de video"));
+        when(chunkInfo.getUserId()).thenReturn(userId);
+        when(chunkInfo.getVideoId()).thenReturn(videoId);
 
         RuntimeException ex = assertThrows(RuntimeException.class, () -> controller.processVideo(dto));
         assertTrue(ex.getMessage().contains("Falha ao processar o vídeo: erro de video"));
-        verify(requestVideoInfoMapper).requestDtoToDomain(dto);
-        verify(getVideoUseCase).getVideo(chunkInfo);
-        verifyNoMoreInteractions(requestVideoInfoMapper, getVideoUseCase, extractFramesUseCase, completeChunkUseCase);
+        InOrder inOrder = Mockito.inOrder(requestVideoInfoMapper, getVideoUseCase, publishVideoStatusUseCase);
+        inOrder.verify(requestVideoInfoMapper).requestDtoToDomain(dto);
+        inOrder.verify(getVideoUseCase).getVideo(chunkInfo);
+        inOrder.verify(publishVideoStatusUseCase).publishStatus(userId, videoId, "ERROR");
+        verifyNoMoreInteractions(requestVideoInfoMapper, getVideoUseCase, extractFramesUseCase, completeChunkUseCase, publishVideoStatusUseCase);
     }
 }
