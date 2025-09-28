@@ -41,8 +41,10 @@ public class VideoProcessingControllerImpl implements VideoProcessingController 
         VideoChunkInfo videoChunkInfo = requestVideoInfoMapper.requestDtoToDomain(uploadedVideoInfoDto);
         try (InputStream videoStream = getVideoUseCase.getVideo(videoChunkInfo)) {
             extractFramesUseCase.extractAndSave(videoChunkInfo, videoStream);
-            completeChunkUseCase.onChunkProcessed(videoChunkInfo);
-            publishVideoStatusUseCase.publishStatus(videoChunkInfo.getUserId(), videoChunkInfo.getVideoId(), "SUCCESS");
+            final boolean isLastChunk = completeChunkUseCase.onChunkProcessed(videoChunkInfo);
+            if (isLastChunk) {
+                publishVideoStatusUseCase.publishStatus(videoChunkInfo.getUserId(), videoChunkInfo.getVideoId(), "SUCCESS");
+            }
         } catch (Exception e) {
             publishVideoStatusUseCase.publishStatus(videoChunkInfo.getUserId(), videoChunkInfo.getVideoId(), "ERROR");
             throw new RuntimeException("Falha ao processar o vídeo: " + e.getMessage(), e);

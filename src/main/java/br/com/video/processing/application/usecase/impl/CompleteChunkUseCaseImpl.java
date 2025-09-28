@@ -20,10 +20,11 @@ public class CompleteChunkUseCaseImpl implements CompleteChunkUseCase {
     }
 
     @Override
-    public void onChunkProcessed(VideoChunkInfo info) {
+    public boolean onChunkProcessed(VideoChunkInfo info) {
         long count = progressRepository.addPosition(info.getVideoId(), info.getChunkPosition());
         int total = info.getTotalChunks();
-        if (count >= total && !progressRepository.isZipDone(info.getVideoId())) {
+        boolean isLast = count >= total;
+        if (isLast && !progressRepository.isZipDone(info.getVideoId())) {
             if (progressRepository.tryAcquireZipLock(info.getVideoId(), 300)) {
                 try {
                     framesZipper.zipFrames(info);
@@ -32,5 +33,6 @@ public class CompleteChunkUseCaseImpl implements CompleteChunkUseCase {
                 }
             }
         }
+        return isLast;
     }
 }

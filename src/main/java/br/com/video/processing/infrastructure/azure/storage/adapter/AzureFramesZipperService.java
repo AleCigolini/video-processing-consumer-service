@@ -57,7 +57,8 @@ public class AzureFramesZipperService implements FramesZipper {
                 }
             }
 
-            String zipBlobPath = info.getUserId() + "/" + info.getVideoId() + "/frames.zip";
+            removeChunks(info);
+            String zipBlobPath = "zip-id-video/" + info.getVideoId() + ".zip";
             try (FileInputStream fis = new FileInputStream(tmpZip.toFile())) {
                 persister.save(
                         info.getConnectionString(),
@@ -74,6 +75,27 @@ public class AzureFramesZipperService implements FramesZipper {
             if (Objects.nonNull(tmpZip)) {
                 try { Files.deleteIfExists(tmpZip); } catch (IOException ignored) {}
             }
+        }
+    }
+
+    private void removeChunks(VideoChunkInfo info) {
+        BlobServiceClient service = AzureBlobServiceClientFactory.getClient(info.getConnectionString());
+        BlobContainerClient container = service.getBlobContainerClient(info.getContainerName());
+        String userVideoPrefix = info.getUserId() + "/" + info.getVideoId() + "/";
+        String onlyVideoPrefix = info.getVideoId() + "/";
+        deleteByPrefix(container, userVideoPrefix);
+        deleteByPrefix(container, onlyVideoPrefix);
+    }
+
+    private void deleteByPrefix(BlobContainerClient container, String prefix) {
+        try {
+            for (BlobItem item : container.listBlobs(new ListBlobsOptions().setPrefix(prefix), null)) {
+                try {
+                    container.getBlobClient(item.getName()).delete();
+                } catch (Exception ignored) {
+                }
+            }
+        } catch (Exception ignored) {
         }
     }
 }

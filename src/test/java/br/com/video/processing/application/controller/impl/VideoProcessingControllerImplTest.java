@@ -53,6 +53,7 @@ class VideoProcessingControllerImplTest {
 
         when(requestVideoInfoMapper.requestDtoToDomain(dto)).thenReturn(chunkInfo);
         when(getVideoUseCase.getVideo(chunkInfo)).thenReturn(videoStream);
+        when(completeChunkUseCase.onChunkProcessed(chunkInfo)).thenReturn(true); // last chunk
         when(chunkInfo.getUserId()).thenReturn(userId);
         when(chunkInfo.getVideoId()).thenReturn(videoId);
 
@@ -65,6 +66,27 @@ class VideoProcessingControllerImplTest {
         inOrder.verify(completeChunkUseCase).onChunkProcessed(chunkInfo);
         inOrder.verify(publishVideoStatusUseCase).publishStatus(userId, videoId, "SUCCESS");
         verifyNoMoreInteractions(requestVideoInfoMapper, getVideoUseCase, extractFramesUseCase, completeChunkUseCase, publishVideoStatusUseCase);
+    }
+
+    @Test
+    void processVideo_nonLastChunk_shouldNotPublishSuccess() {
+        UploadedVideoInfoDto dto = mock(UploadedVideoInfoDto.class);
+        VideoChunkInfo chunkInfo = mock(VideoChunkInfo.class);
+        InputStream videoStream = new ByteArrayInputStream(new byte[]{1,2,3});
+
+        when(requestVideoInfoMapper.requestDtoToDomain(dto)).thenReturn(chunkInfo);
+        when(getVideoUseCase.getVideo(chunkInfo)).thenReturn(videoStream);
+        when(completeChunkUseCase.onChunkProcessed(chunkInfo)).thenReturn(false); // not last chunk
+
+        controller.processVideo(dto);
+
+        InOrder inOrder = Mockito.inOrder(requestVideoInfoMapper, getVideoUseCase, extractFramesUseCase, completeChunkUseCase);
+        inOrder.verify(requestVideoInfoMapper).requestDtoToDomain(dto);
+        inOrder.verify(getVideoUseCase).getVideo(chunkInfo);
+        inOrder.verify(extractFramesUseCase).extractAndSave(chunkInfo, videoStream);
+        inOrder.verify(completeChunkUseCase).onChunkProcessed(chunkInfo);
+        verifyNoInteractions(publishVideoStatusUseCase);
+        verifyNoMoreInteractions(requestVideoInfoMapper, getVideoUseCase, extractFramesUseCase, completeChunkUseCase);
     }
 
     @Test
