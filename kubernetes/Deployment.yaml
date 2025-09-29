@@ -85,8 +85,8 @@ spec:
               cpu: "400m"
               memory: "512Mi"
             limits:
-              cpu: "500m"
-              memory: "1024Mi"
+              cpu: "700m"
+              memory: "1536Mi"
           readinessProbe:
             httpGet:
               path: /video-processing/health/ready
