@@ -66,6 +66,18 @@ spec:
                   name: video-processing-secret
                   key: REDIS_USERNAME
                   optional: true
+            - name: REDIS_CHUNK_TTL_SECONDS
+              valueFrom:
+                secretKeyRef:
+                  name: video-processing-secret
+                  key: REDIS_CHUNK_TTL_SECONDS
+                  optional: true
+            - name: VIDEO_SPLIT_CONSUMER_CONCURRENCY
+              valueFrom:
+                secretKeyRef:
+                  name: video-processing-secret
+                  key: VIDEO_SPLIT_CONSUMER_CONCURRENCY
+                  optional: true
             - name: HTTP_ROOT_PATH
               value: "/video-processing"
           resources:
