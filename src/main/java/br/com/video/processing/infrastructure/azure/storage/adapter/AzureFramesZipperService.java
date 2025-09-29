@@ -58,7 +58,7 @@ public class AzureFramesZipperService implements FramesZipper {
             }
 
             removeChunks(info);
-            String zipBlobPath = info.getUserId() + "/" + info.getVideoId() + "/frames.zip";
+            String zipBlobPath = String.join("/", String.valueOf(info.getUserId()), String.valueOf(info.getVideoId()), "frames.zip");
             try (FileInputStream fis = new FileInputStream(tmpZip.toFile())) {
                 persister.save(
                         info.getConnectionString(),
