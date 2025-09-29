@@ -80,10 +80,10 @@ jobs:
           envsubst < ./kubernetes/Secret.yaml > ./kubernetes/Secret.yaml
 
       - name: Deploy to Kubernetes
-        env:
-          K8S_NAMESPACE: default
-          DEPLOYMENT_NAME: video-processing
         run: |
-          kubectl apply -f ./kubernetes/ --recursive -n "$K8S_NAMESPACE"
-          kubectl rollout restart deployment "$DEPLOYMENT_NAME" -n "$K8S_NAMESPACE"
-          kubectl rollout status deployment "$DEPLOYMENT_NAME" -n "$K8S_NAMESPACE" --timeout=180s
+          kubectl apply -f ./kubernetes/ --recursive
+
+      - name: Rollout restart and wait
+        run: |
+          kubectl rollout restart deployment/video-processing
+          kubectl rollout status deployment/video-processing --timeout=180s
