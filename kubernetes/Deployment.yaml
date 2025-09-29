@@ -136,8 +136,8 @@ metadata:
   name: video-processing-hpa
   namespace: default
 spec:
-  maxReplicas: 3
-  minReplicas: 1
+  maxReplicas: 4
+  minReplicas: 2
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment

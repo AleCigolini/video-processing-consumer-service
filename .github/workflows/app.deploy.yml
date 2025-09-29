@@ -16,6 +16,7 @@ jobs:
     env:
       KAFKA_SASL_JAAS_CONFIG: ${{ secrets.KAFKA_SASL_JAAS_CONFIG }}
       AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
+      REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
 
     steps:
       - uses: actions/checkout@v4

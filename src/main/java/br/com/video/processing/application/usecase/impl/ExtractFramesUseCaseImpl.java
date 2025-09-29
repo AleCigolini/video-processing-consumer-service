@@ -14,9 +14,13 @@ import org.jcodec.scale.AWTUtil;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @ApplicationScoped
@@ -37,7 +41,7 @@ public class ExtractFramesUseCaseImpl implements ExtractFramesUseCase {
         Path tempVideo = null;
         try {
             tempVideo = Files.createTempFile("video-src-" + videoChunkInfo.getVideoId(), ".mp4");
-            Files.copy(videoStream, tempVideo, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(videoStream, tempVideo, StandardCopyOption.REPLACE_EXISTING);
 
             try (SeekableByteChannel channel = NIOUtils.readableChannel(tempVideo.toFile())) {
                 FrameGrab grab = FrameGrab.createFrameGrab(channel);
