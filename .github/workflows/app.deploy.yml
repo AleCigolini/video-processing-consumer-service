@@ -15,7 +15,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       KAFKA_SASL_JAAS_CONFIG: ${{ secrets.KAFKA_SASL_JAAS_CONFIG }}
-      AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
       REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
 
     steps:
@@ -76,8 +75,15 @@ jobs:
             --resource-group rg-fiap \
             --name k8s-fiap-dev
 
-      - name: Deploy to Kubernetes
+      - name: Render Kubernetes Secret with pipeline secrets
         run: |
-          kubectl apply -f ./kubernetes/ --recursive
+          envsubst < ./kubernetes/Secret.yaml > ./kubernetes/Secret.yaml
 
-
+      - name: Deploy to Kubernetes
+        env:
+          K8S_NAMESPACE: default
+          DEPLOYMENT_NAME: video-processing
+        run: |
+          kubectl apply -f ./kubernetes/ --recursive -n "$K8S_NAMESPACE"
+          kubectl rollout restart deployment "$DEPLOYMENT_NAME" -n "$K8S_NAMESPACE"
+          kubectl rollout status deployment "$DEPLOYMENT_NAME" -n "$K8S_NAMESPACE" --timeout=180s
