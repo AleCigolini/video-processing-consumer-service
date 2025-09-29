@@ -10,11 +10,13 @@ import br.com.video.processing.common.domain.dto.request.UploadedVideoInfoDto;
 import br.com.video.processing.domain.VideoChunkInfo;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.jboss.logging.Logger;
 
 import java.io.InputStream;
 
 @ApplicationScoped
 public class VideoProcessingControllerImpl implements VideoProcessingController {
+    private static final Logger LOG = Logger.getLogger(VideoProcessingControllerImpl.class);
     RequestVideoInfoMapper requestVideoInfoMapper;
     GetVideoUseCase getVideoUseCase;
     ExtractFramesUseCase extractFramesUseCase;
@@ -46,8 +48,8 @@ public class VideoProcessingControllerImpl implements VideoProcessingController 
                 publishVideoStatusUseCase.publishStatus(videoChunkInfo.getUserId(), videoChunkInfo.getVideoId(), "SUCCESS");
             }
         } catch (Exception e) {
+            LOG.errorf(e, "Error processing video for user %s, video %s", videoChunkInfo.getUserId(), videoChunkInfo.getVideoId());
             publishVideoStatusUseCase.publishStatus(videoChunkInfo.getUserId(), videoChunkInfo.getVideoId(), "ERROR");
-            throw new RuntimeException("Falha ao processar o vídeo: " + e.getMessage(), e);
         }
     }
 }

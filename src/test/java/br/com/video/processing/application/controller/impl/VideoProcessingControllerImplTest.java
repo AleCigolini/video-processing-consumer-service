@@ -53,7 +53,7 @@ class VideoProcessingControllerImplTest {
 
         when(requestVideoInfoMapper.requestDtoToDomain(dto)).thenReturn(chunkInfo);
         when(getVideoUseCase.getVideo(chunkInfo)).thenReturn(videoStream);
-        when(completeChunkUseCase.onChunkProcessed(chunkInfo)).thenReturn(true); // last chunk
+        when(completeChunkUseCase.onChunkProcessed(chunkInfo)).thenReturn(true);
         when(chunkInfo.getUserId()).thenReturn(userId);
         when(chunkInfo.getVideoId()).thenReturn(videoId);
 
@@ -90,7 +90,7 @@ class VideoProcessingControllerImplTest {
     }
 
     @Test
-    void processVideo_shouldThrowRuntimeException_whenExceptionOccurs() {
+    void processVideo_shouldPublishErrorStatus_whenExceptionOccurs() {
         UploadedVideoInfoDto dto = mock(UploadedVideoInfoDto.class);
         VideoChunkInfo chunkInfo = mock(VideoChunkInfo.class);
         UUID userId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
@@ -100,8 +100,7 @@ class VideoProcessingControllerImplTest {
         when(chunkInfo.getUserId()).thenReturn(userId);
         when(chunkInfo.getVideoId()).thenReturn(videoId);
 
-        RuntimeException ex = assertThrows(RuntimeException.class, () -> controller.processVideo(dto));
-        assertTrue(ex.getMessage().contains("Falha ao processar o vídeo: erro de video"));
+        assertDoesNotThrow(() -> controller.processVideo(dto));
         InOrder inOrder = Mockito.inOrder(requestVideoInfoMapper, getVideoUseCase, publishVideoStatusUseCase);
         inOrder.verify(requestVideoInfoMapper).requestDtoToDomain(dto);
         inOrder.verify(getVideoUseCase).getVideo(chunkInfo);
