@@ -38,6 +38,11 @@ spec:
                 secretKeyRef:
                   name: video-processing-secret
                   key: KAFKA_SASL_MECHANISM
+            - name: KAFKA_SASL_JAAS_CONFIG
+              valueFrom:
+                secretKeyRef:
+                  name: video-processing-secret
+                  key: KAFKA_SASL_JAAS_CONFIG
             - name: VIDEO_SPLITTED_TOPIC
               valueFrom:
                 secretKeyRef:
@@ -48,6 +53,12 @@ spec:
                 secretKeyRef:
                   name: video-processing-secret
                   key: REDIS_HOSTS
+                  optional: true
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: video-processing-secret
+                  key: REDIS_PASSWORD
                   optional: true
             - name: REDIS_USERNAME
               valueFrom:
@@ -75,7 +86,7 @@ spec:
               memory: "512Mi"
             limits:
               cpu: "700m"
-              memory: "1024Mi"
+              memory: "1536Mi"
           readinessProbe:
             httpGet:
               path: /video-processing/health/ready
