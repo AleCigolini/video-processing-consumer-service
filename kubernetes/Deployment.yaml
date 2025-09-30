@@ -82,11 +82,11 @@ spec:
               value: "/video-processing"
           resources:
             requests:
-              cpu: "400m"
-              memory: "512Mi"
+              cpu: "800m"
+              memory: "2Gi"
             limits:
-              cpu: "700m"
-              memory: "1536Mi"
+              cpu: "900m"
+              memory: "2Gi"
           readinessProbe:
             httpGet:
               path: /video-processing/health/ready
